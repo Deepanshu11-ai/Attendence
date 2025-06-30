@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ghibli-green: #7FB069;
+            --ghibli-blue: #4A90E2;
+            --ghibli-cream: #F7F3E9;
+            --ghibli-brown: #8B4513;
+            --ghibli-gold: #FFD700;
+        }
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/placeholder.svg?height=1080&width=1920') center/cover;
+            opacity: 0.05;
+            z-index: -1;
+        }
+        
+        .navbar {
+            background: linear-gradient(90deg, rgba(74, 144, 226, 0.95) 0%, rgba(127, 176, 105, 0.95) 100%) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn {
+            border-radius: 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            margin-top: 2rem;
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .table {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: tableSlide 0.6s ease-out;
+        }
+        
+        @keyframes tableSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .table thead {
+            background: linear-gradient(90deg, var(--ghibli-blue), var(--ghibli-green));
+            color: white;
+        }
+        
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(127, 176, 105, 0.1);
+            transform: scale(1.01);
+        }
+        
+        .form-control {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            padding: 12px 16px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--ghibli-blue);
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        .card {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .hero-banner {
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/placeholder.svg?height=400&width=1200');
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            animation: heroFade 1s ease-out;
+        }
+        
+        @keyframes heroFade {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .hero-text {
+            color: white;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-book {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.1;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .footer {
+            background: linear-gradient(90deg, #4A90E2 0%, #7FB069 100%);
+            color: #fff;
+            padding: 2.5rem 0 1.2rem 0;
+            border-top: 4px solid #FFD700;
+            box-shadow: 0 -8px 32px rgba(74, 144, 226, 0.18);
+            font-size: 1.15rem;
+            margin-top: 3.5rem;
+            letter-spacing: 0.02em;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .footer h5 {
+            color: #FFD700;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        
+        .footer a {
+            color: #fff;
+            text-decoration: underline;
+            font-weight: 500;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+        
+        .footer a:hover {
+            color: #FFD700;
+            text-shadow: 0 0 10px #FFD700, 0 0 2px #fff;
+        }
+        
+        .footer a.email-link, .footer a.insta-link {
+            color: #111 !important;
+            text-shadow: 0 0 8px #FFD700, 0 0 2px #fff;
+            font-weight: 600;
+            transition: color 0.2s, text-shadow 0.2s;
+            text-decoration: underline;
+        }
+        .footer a.email-link:hover, .footer a.insta-link:hover {
+            color: #FFD700 !important;
+            text-shadow: 0 0 16px #FFD700, 0 0 4px #111;
+        }
+        
+        .footer .row {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer hr {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .footer p.mb-0 {
+            color: #111;
+            opacity: 1;
+            font-size: 1.08rem;
+            font-weight: 600;
+            text-shadow: 0 0 8px #FFD700, 0 0 2px #fff;
+            letter-spacing: 0.02em;
+            margin-bottom: 0;
+            transition: color 0.2s, text-shadow 0.2s;
+        }
+        .footer p.mb-0:hover {
+            color: #FFD700;
+            text-shadow: 0 0 16px #FFD700, 0 0 4px #111;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <i class="fas fa-book floating-book" style="top: 10%; left: 10%; font-size: 2rem; animation-delay: 0s;"></i>
+        <i class="fas fa-graduation-cap floating-book" style="top: 20%; right: 15%; font-size: 1.5rem; animation-delay: 2s;"></i>
+        <i class="fas fa-pencil-alt floating-book" style="bottom: 30%; left: 20%; font-size: 1.8rem; animation-delay: 4s;"></i>
+        <i class="fas fa-apple-alt floating-book" style="bottom: 20%; right: 10%; font-size: 1.6rem; animation-delay: 1s;"></i>
+    </div>
+
+    <nav class="navbar navbar-expand-lg navbar-dark px-4">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-book-open me-2"></i>
+                📚 Attendance Tracker
+            </a>
+            {% if current_user.is_authenticated %}
+            <div class="d-flex">
+                <a class="btn btn-outline-light me-2" href="{{ url_for('predict') }}">
+                    <i class="fas fa-brain me-1"></i>🧠 Can I Skip?
+                </a>
+                <a class="btn btn-outline-light me-2" href="{{ url_for('predict_leaves') }}">
+                    <i class="fas fa-calendar-alt me-1"></i>📅 Future Leave
+                </a>
+                <a class="btn btn-danger" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for msg in messages %}
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="fas fa-info-circle me-2"></i>{{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="footer text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-envelope me-2"></i>Contact</h5>
+                    <p><a class="email-link" href="mailto:44deepanshu@gmail.com">44deepanshu@gmail.com</a></p>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fab fa-instagram me-2"></i>Follow Us</h5>
+                    <p><a class="insta-link" href="https://www.instagram.com/deepanshu_531?igsh=MTBtMWpnMWYzeGIxcA==" target="_blank">@deepanshu_531</a></p>
+                </div>
+            </div>
+            <hr class="my-3" style="border-color: rgba(255, 255, 255, 0.3);">
+            <p class="mb-0">&copy; 2024 Smart Attendance Tracker..</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

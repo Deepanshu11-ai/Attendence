@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="hero-banner">
+    <div class="hero-text">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-chart-line me-3"></i>Your Academic Journey
+        </h1>
+        <p class="lead">Track your attendance with the magic of organization ✨</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="mb-4 text-primary">
+            <i class="fas fa-books me-2"></i>📋 Your Subjects
+        </h2>
+    </div>
+    <div class="col-md-4 text-end">
+        <a class="btn btn-success btn-lg" href="{{ url_for('add_subject') }}">
+            <i class="fas fa-plus me-2"></i>➕ Add Subject
+        </a>
+    </div>
+</div>
+
+{% if subjects %}
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-book me-2"></i>Subject
+                        </th>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-check-circle me-2"></i>Present
+                        </th>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-calendar me-2"></i>Total
+                        </th>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-percentage me-2"></i>Percentage
+                        </th>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-cogs me-2"></i>Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for subject in subjects %}
+                    {% set present = subject.manual_present + (subject.attendances | selectattr('status', 'equalto', 'Present') | list | length) %}
+                    {% set total = subject.manual_total + subject.attendances|length %}
+                    {% set percentage = ((present / total) * 100) | round(2) if total > 0 else 0 %}
+                    <tr class="align-middle">
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle p-2 me-3">
+                                    <i class="fas fa-graduation-cap text-white"></i>
+                                </div>
+                                <strong>{{ subject.name }}</strong>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="badge bg-success fs-6">{{ present }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="badge bg-info fs-6">{{ total }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            {% if total > 0 %}
+                                <div class="d-flex align-items-center">
+                                    <div class="progress me-2" style="width: 100px; height: 8px;">
+                                        <div class="progress-bar" 
+                                             style="width: {{ percentage }}%"
+                                             {% if percentage >= 75 %}
+                                                 class="bg-success"
+                                             {% elif percentage >= 60 %}
+                                                 class="bg-warning"
+                                             {% else %}
+                                                 class="bg-danger"
+                                             {% endif %}>
+                                        </div>
+                                    </div>
+                                    <span class="fw-bold 
+                                        {% if percentage >= 75 %}text-success
+                                        {% elif percentage >= 60 %}text-warning
+                                        {% else %}text-danger{% endif %}">
+                                        {{ percentage }}%
+                                    </span>
+                                </div>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="btn-group" role="group">
+                                <form method="POST" action="{{ url_for('mark_attendance', subject_id=subject.id, status='Present') }}" class="d-inline">
+                                    <button class="btn btn-sm btn-success me-1" title="Mark Present">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('mark_attendance', subject_id=subject.id, status='Absent') }}" class="d-inline">
+                                    <button class="btn btn-sm btn-warning me-1" title="Mark Absent">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('delete_subject', id=subject.id) }}" class="d-inline" onsubmit="return confirm('Delete this subject?');">
+                                    <button class="btn btn-sm btn-danger" title="Delete Subject">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-book-open fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Total Subjects</h5>
+                <h2 class="text-primary">{{ subjects|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Average Attendance</h5>
+                {% set avg_attendance = (subjects | map(attribute='manual_present') | sum + subjects | map(attribute='attendances') | map('selectattr', 'status', 'equalto', 'Present') | map('list') | map('length') | sum) / (subjects | map(attribute='manual_total') | sum + subjects | map(attribute='attendances') | map('length') | sum) * 100 if (subjects | map(attribute='manual_total') | sum + subjects | map(attribute='attendances') | map('length') | sum) > 0 else 0 %}
+                <h2 class="text-success">{{ avg_attendance | round(1) }}%</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Best Subject</h5>
+                {% set best_subject = subjects | selectattr('manual_total', 'gt', 0) | list | sort(attribute='manual_present', reverse=true) | first %}
+                <h6 class="text-warning">{{ best_subject.name if best_subject else 'N/A' }}</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+    <div class="card">
+        <div class="card-body">
+            <img src="/placeholder.svg?height=200&width=300" alt="No subjects" class="mb-4 rounded">
+            <h3 class="text-muted mb-3">No subjects added yet</h3>
+            <p class="text-muted mb-4">Start your academic journey by adding your first subject!</p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('add_subject') }}">
+                <i class="fas fa-plus me-2"></i>Add Your First Subject
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .card {
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .progress {
+        border-radius: 10px;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-group .btn {
+        transition: all 0.2s ease;
+    }
+    
+    .btn-group .btn:hover {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}

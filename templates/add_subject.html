@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="hero-banner mb-4" style="height: 200px;">
+            <div class="hero-text">
+                <h2 class="fw-bold">Add New Subject</h2>
+                <p class="mb-0">Expand your academic tracking</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="bg-info rounded-circle p-3 d-inline-block mb-3">
+                        <i class="fas fa-book-open fa-2x text-white"></i>
+                    </div>
+                    <h3 class="fw-bold text-info">Add Subject</h3>
+                    <p class="text-muted">Fill in the details for your new subject</p>
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-book me-2 text-info"></i>Subject Name
+                        </label>
+                        <input type="text" name="name" class="form-control form-control-lg" required 
+                               placeholder="e.g., Mathematics, Physics, Chemistry">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-alt me-2 text-info"></i>Total Classes Held
+                                </label>
+                                <input type="number" name="manual_total" class="form-control form-control-lg" 
+                                       min="0" placeholder="0">
+                                <small class="form-text text-muted">Optional: Classes already conducted</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    <i class="fas fa-check-circle me-2 text-info"></i>Classes Attended
+                                </label>
+                                <input type="number" name="manual_present" class="form-control form-control-lg" 
+                                       min="0" placeholder="0">
+                                <small class="form-text text-muted">Optional: Classes you attended</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-info btn-lg">
+                            <i class="fas fa-plus me-2"></i>Add Subject
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <img src="/placeholder.svg?height=150&width=250" alt="Books illustration" class="rounded opacity-75">
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+    }
+    
+    .btn-info {
+        background: linear-gradient(45deg, #17a2b8, var(--ghibli-blue));
+        border: none;
+    }
+    
+    .btn-info:hover {
+        background: linear-gradient(45deg, var(--ghibli-blue), #17a2b8);
+        transform: translateY(-2px);
+    }
+    
+    .form-text {
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}

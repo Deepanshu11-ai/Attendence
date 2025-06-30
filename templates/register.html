@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="hero-banner mb-4" style="height: 200px;">
+            <div class="hero-text">
+                <h2 class="fw-bold">Join Us!</h2>
+                <p class="mb-0">Start tracking your academic success</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="bg-success rounded-circle p-3 d-inline-block mb-3">
+                        <i class="fas fa-user-plus fa-2x text-white"></i>
+                    </div>
+                    <h3 class="fw-bold text-success">Register</h3>
+                    <p class="text-muted">Create your account to get started</p>
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-user me-2 text-success"></i>Username
+                        </label>
+                        <input type="text" name="username" class="form-control form-control-lg" required 
+                               placeholder="Choose a username">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-lock me-2 text-success"></i>Password
+                        </label>
+                        <input type="password" name="password" class="form-control form-control-lg" required 
+                               placeholder="Create a secure password">
+                    </div>
+                    <button class="btn btn-success btn-lg w-100 mb-3">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="text-muted">Already have an account? 
+                        <a href="{{ url_for('login') }}" class="text-success fw-semibold text-decoration-none">
+                            Login here
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <img src="/placeholder.svg?height=150&width=200" alt="Welcome illustration" class="rounded opacity-75">
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        border-color: var(--ghibli-green);
+        box-shadow: 0 0 0 0.2rem rgba(127, 176, 105, 0.25);
+    }
+    
+    .btn-success {
+        background: linear-gradient(45deg, var(--ghibli-green), var(--ghibli-blue));
+        border: none;
+    }
+    
+    .btn-success:hover {
+        background: linear-gradient(45deg, var(--ghibli-blue), var(--ghibli-green));
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}  

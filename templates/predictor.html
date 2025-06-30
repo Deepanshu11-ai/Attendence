@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="hero-banner mb-4">
+    <div class="hero-text">
+        <h1 class="display-5 fw-bold mb-3">
+            <i class="fas fa-crystal-ball me-3"></i>🎯 Attendance Prediction
+        </h1>
+        <p class="lead">Discover if you can skip tomorrow's classes safely</p>
+    </div>
+</div>
+
+{% if predictions %}
+<div class="card">
+    <div class="card-header bg-gradient text-white text-center py-3">
+        <h4 class="mb-0">
+            <i class="fas fa-chart-line me-2"></i>Tomorrow's Attendance Forecast
+        </h4>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-book me-2"></i>Subject
+                        </th>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-chart-bar me-2"></i>Current %
+                        </th>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-arrow-down me-2"></i>After 1 Leave
+                        </th>
+                        <th class="px-4 py-3">
+                            <i class="fas fa-traffic-light me-2"></i>Status
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in predictions %}
+                    <tr class="align-middle">
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary rounded-circle p-2 me-3">
+                                    <i class="fas fa-graduation-cap text-white"></i>
+                                </div>
+                                <strong>{{ p.name }}</strong>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="progress me-2" style="width: 80px; height: 8px;">
+                                    <div class="progress-bar bg-info" style="width: {{ p.current }}%"></div>
+                                </div>
+                                <span class="fw-bold text-info">{{ p.current }}%</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="progress me-2" style="width: 80px; height: 8px;">
+                                    <div class="progress-bar 
+                                        {% if p.after_leave|float >= 75 %}bg-success
+                                        {% elif p.after_leave|float >= 60 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                        style="width: {{ p.after_leave }}%">
+                                    </div>
+                                </div>
+                                <span class="fw-bold 
+                                    {% if p.after_leave|float >= 75 %}text-success
+                                    {% elif p.after_leave|float >= 60 %}text-warning
+                                    {% else %}text-danger{% endif %}">
+                                    {{ p.after_leave }}%
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            {% if 'Safe' in p.status %}
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-check-circle me-1"></i>{{ p.status }}
+                                </span>
+                            {% elif 'Risky' in p.status %}
+                                <span class="badge bg-warning fs-6">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ p.status }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger fs-6">
+                                    <i class="fas fa-times-circle me-1"></i>{{ p.status }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mt-4">
+    {% set safe_count = predictions | selectattr('status', 'equalto', '✅ Safe') | list | length %}
+    {% set risky_count = predictions | selectattr('status', 'equalto', '⚠️ Risky') | list | length %}
+    {% set danger_count = predictions | length - safe_count - risky_count %}
+    
+    <div class="col-md-4">
+        <div class="card text-center border-success">
+            <div class="card-body">
+                <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                <h5 class="card-title text-success">Safe to Skip</h5>
+                <h2 class="text-success">{{ safe_count }}</h2>
+                <p class="text-muted">Subjects you can safely miss</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center border-warning">
+            <div class="card-body">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <h5 class="card-title text-warning">Risky</h5>
+                <h2 class="text-warning">{{ risky_count }}</h2>
+                <p class="text-muted">Think twice before skipping</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center border-danger">
+            <div class="card-body">
+                <i class="fas fa-ban fa-3x text-danger mb-3"></i>
+                <h5 class="card-title text-danger">Don't Skip</h5>
+                <h2 class="text-danger">{{ danger_count }}</h2>
+                <p class="text-muted">Attendance too low to miss</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+    <div class="card">
+        <div class="card-body">
+            <img src="/placeholder.svg?height=200&width=300" alt="No data" class="mb-4 rounded">
+            <h3 class="text-muted mb-3">No prediction data available</h3>
+            <p class="text-muted mb-4">Add some subjects and attendance records to see predictions!</p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .bg-gradient {
+        background: linear-gradient(45deg, var(--ghibli-blue), var(--ghibli-green)) !important;
+    }
+    
+    .card {
+        animation: slideInUp 0.6s ease-out;
+    }
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .badge {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+</style>
+{% endblock %}
