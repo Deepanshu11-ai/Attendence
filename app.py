@@ -2,10 +2,18 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from datetime import date
+from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///attendance.db'
+
+# Use PostgreSQL on Render, fallback to SQLite locally
+uri = os.environ.get('DATABASE_URL', 'sqlite:///attendance.db')
+if uri.startswith('postgres://'):
+    uri = uri.replace('postgres://', 'postgresql://', 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
+
 db = SQLAlchemy(app)
 
 login_manager = LoginManager(app)
@@ -15,6 +23,8 @@ login_manager.login_view = 'login'
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    full_name = db.Column(db.String(150), nullable=False)
     password = db.Column(db.String(150))
     subjects = db.relationship('Subject', backref='owner', lazy=True)
 
@@ -44,12 +54,24 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip()
+        email = request.form['email'].strip().lower()
+        full_name = request.form['full_name'].strip()
         password = request.form['password']
+        if not username or not password or not email or not full_name:
+            flash("All fields are required.")
+            return render_template('register.html')
+        if len(password) < 6:
+            flash("Password must be at least 6 characters long.")
+            return render_template('register.html')
         if User.query.filter_by(username=username).first():
-            flash("Username already exists")
-            return redirect(url_for('register'))
-        user = User(username=username, password=password)
+            flash("Username already exists. Please choose another.")
+            return render_template('register.html')
+        if User.query.filter_by(email=email).first():
+            flash("Email already registered. Please use another.")
+            return render_template('register.html')
+        hashed_password = generate_password_hash(password)
+        user = User(username=username, email=email, full_name=full_name, password=hashed_password)
         db.session.add(user)
         db.session.commit()
         flash("Registered successfully! Login now.")
@@ -59,9 +81,12 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = User.query.filter_by(username=request.form['username']).first()
-        if user and user.password == request.form['password']:
+        username = request.form['username'].strip()
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
             login_user(user)
+            flash("Logged in successfully!")
             return redirect(url_for('dashboard'))
         flash("Invalid credentials")
     return render_template('login.html')
